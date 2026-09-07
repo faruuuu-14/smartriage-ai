@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmarTriage Clinical AI - Triase Medis, Integumen & Trajektori Luka</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        },
+                        clinical: {
+                            blue: '#0284c7',
+                            navy: '#0f172a',
+                            surface: '#f8fafc',
+                            border: '#e2e8f0',
+                        }
+                    },
+                    boxShadow: {
+                        'glass': '0 8px 32px 0 rgba(13, 148, 136, 0.08)',
+                        'card-glow': '0 4px 20px -2px rgba(15, 23, 42, 0.05)',
+                        'triage-red': '0 10px 25px -5px rgba(225, 29, 72, 0.15)',
+                        'triage-amber': '0 10px 25px -5px rgba(217, 119, 6, 0.15)',
+                        'triage-green': '0 10px 25px -5px rgba(16, 185, 129, 0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+        
+        :root {
+            --brand-primary: #0d9488;
+            --brand-emerald: #10b981;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f8fafc;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(13, 148, 136, 0.06) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.06) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(241, 245, 249, 0.6) 0px, transparent 100%);
+            background-attachment: fixed;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.85);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(13, 148, 136, 0.35);
+            box-shadow: 0 10px 30px -10px rgba(13, 148, 136, 0.12);
+        }
+
+        .main-nav-btn.active {
+            color: #0f766e;
+            background-color: #f0fdfa;
+            border-color: #99f6e4;
+            font-weight: 700;
+        }
+
+        .tab-btn.active {
+            color: #0f766e;
+            border-bottom: 2.5px solid #0d9488;
+            background: rgba(240, 253, 250, 0.5);
+            font-weight: 700;
+        }
+
+        /* Modern Medical Slider */
+        input[type=range].medical-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            border-radius: 9999px;
+            background: linear-gradient(to right, #10b981 0%, #14b8a6 25%, #f59e0b 60%, #ef4444 100%);
+            outline: none;
+        }
+
+        input[type=range].medical-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 3px solid #0d9488;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        input[type=range].medical-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.35);
+        }
+
+        input[type=range].medical-slider::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 3px solid #0d9488;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+            cursor: pointer;
+        }
+
+        /* Custom Scrollbar for Chat and Content */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 5px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(241, 245, 249, 0.6);
+            border-radius: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Pulse animation for active triage */
+        @keyframes subtle-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.92; transform: scale(1.02); }
+        }
+        .animate-subtle-pulse {
+            animation: subtle-pulse 2s infinite ease-in-out;
+        }
+
+        @media print {
+            body * { visibility: hidden; }
+            #printableClinicalReport, #printableClinicalReport * { visibility: visible; }
+            #printableClinicalReport {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                display: block !important;
+            }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- Header Navbar Modern -->
+    <header class="glass-card sticky top-0 z-50 border-b border-slate-200/80 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            
+            <!-- Logo & Brand Identity -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-teal-600 via-teal-500 to-emerald-400 flex items-center justify-center text-white shadow-md shadow-teal-600/20">
+                    <i data-lucide="activity" class="w-5 h-5 animate-pulse"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-tight">
+                            SmarTriage<span class="bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">.ClinicalAI</span>
+                        </h1>
+                        <span class="hidden md:inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                            CDSS Siaga
+                        </span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 font-medium">Sistem Pendukung Keputusan Klinis • Integumen & Ragam Luka</p>
+                </div>
+            </div>
+            
+            <!-- Tab Mode Navigasi & Action Buttons -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                
+                <!-- Nav View Switcher Pills -->
+                <nav class="flex items-center gap-1 bg-slate-100/90 p-1 rounded-xl border border-slate-200/80 text-xs font-semibold">
+                    <button id="navBtnAnalyze" onclick="switchMainView('analyze')" class="main-nav-btn active px-3 py-1.5 rounded-lg border border-transparent transition flex items-center gap-1.5">
+                        <i data-lucide="scan-line" class="w-3.5 h-3.5 text-teal-600"></i>
+                        <span>Pemeriksaan Triase</span>
+                    </button>
+                    <button id="navBtnTracker" onclick="switchMainView('tracker')" class="main-nav-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 border border-transparent transition flex items-center gap-1.5">
+                        <i data-lucide="trending-down" class="w-3.5 h-3.5 text-slate-500"></i>
+                        <span class="hidden sm:inline">Trajektori Luka</span>
+                        <span class="sm:hidden">Tracker</span>
+                    </button>
+                </nav>
+
+                <!-- Gemini API Key Trigger -->
+                <button onclick="toggleApiKeyModal()" class="flex items-center gap-1.5 text-xs font-bold px-3 py-2 bg-gradient-to-r from-slate-50 to-teal-50/40 hover:from-teal-50 hover:to-emerald-50 text-slate-700 hover:text-teal-900 rounded-xl border border-slate-200 hover:border-teal-300 transition shadow-2xs">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-teal-600"></i>
+                    <span id="apiKeyBtnText">Vision AI Lokal</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Modal Pengaturan Gemini API Key -->
+    <div id="apiKeyModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center">
+                        <i data-lucide="key" class="w-4 h-4"></i>
+                    </div>
+                    <h3 class="text-sm font-bold text-slate-900">
+                        Integrasi Google Gemini Vision AI
+                    </h3>
+                </div>
+                <button onclick="toggleApiKeyModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                Kunci API Gemini mengaktifkan analisis <b>Multimodal Vision AI tingkat lanjut spesialis 27 kondisi</b> untuk mengenali luka tusuk, gigitan hewan, luka bakar derajat tinggi, dekubitus, kuku cantengan, jamur, hingga dermatitis secara sangat akurat.
+            </p>
+            <div class="relative mb-4">
+                <input type="password" id="geminiApiKeyInput" placeholder="Masukkan AIzaSy..." class="w-full text-xs p-3.5 pl-4 pr-10 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:outline-none font-mono">
+            </div>
+            <div class="flex justify-end items-center gap-2">
+                <button onclick="clearApiKey()" class="px-3 py-2 text-xs font-semibold text-slate-500 hover:text-slate-800 rounded-xl transition">Gunakan Offline / Lokal</button>
+                <button onclick="saveApiKey()" class="px-4 py-2.5 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-xl shadow-sm transition">Simpan Kunci</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container Utama Aplikasi -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-1 w-full no-print">
+
+        <!-- ========================================================================= -->
+        <!-- VIEW 1: PEMERIKSAAN & TRIASE MEDIS -->
+        <!-- ========================================================================= -->
+        <div id="viewAnalyze">
+            
+            <!-- Hero Title & Ringkasan Kapabilitas -->
+            <div class="text-center max-w-3xl mx-auto mb-8">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-50/90 border border-teal-200 text-teal-800 text-xs font-bold mb-3 shadow-2xs">
+                    <i data-lucide="shield-plus" class="w-3.5 h-3.5 text-teal-600"></i>
+                    <span>Clinical Decision Support System (CDSS) • Standar Triage Emergency & Trajektori Luka</span>
+                </div>
+                <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                    Triase Cerdas & Diagnosis <span class="bg-gradient-to-r from-teal-600 via-teal-700 to-emerald-600 bg-clip-text text-transparent">Luka & Dermatologi</span>
+                </h2>
+                <p class="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed max-w-2xl mx-auto">
+                    Klasifikasi cerdas bertingkat 2-tahap (Two-Stage Hierarchical Vision) dengan Quality Gatekeeper citra, analisis jaringan TIME ($cm^2$), skrining ABCDE melanoma, dan pencegahan kontraindikasi obat demografis.
+                </p>
+            </div>
+
+            <!-- Grid 2 Kolom: Kiri (Intake 3 Langkah), Kanan (Hasil Dashboard CDSS) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
+                
+                <!-- ================================================================= -->
+                <!-- KOLOM KIRI: PATIENT INTAKE & CLINICAL INPUT (TERBAGI DALAM 3 LANGKAH) -->
+                <!-- ================================================================= -->
+                <div class="lg:col-span-5 space-y-4">
+                    
+                    <!-- LANGKAH 1: PROFIL PASIEN & BODY MAP (DEMOGRAFI & LOKASI ANATOMIS) -->
+                    <div class="glass-card rounded-2xl p-5 shadow-card-glow">
+                        <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-6 h-6 rounded-lg bg-teal-600 text-white font-extrabold text-xs flex items-center justify-center shadow-xs">1</span>
+                                <div>
+                                    <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Profil Pasien & Lokasi Tubuh</h3>
+                                    <p class="text-[11px] text-slate-500">Pencegahan kontraindikasi & pemetaan anatomis</p>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 bg-teal-50 text-teal-700 rounded-md border border-teal-200">Demografi & Body Map</span>
+                        </div>
+
+                        <!-- Profil Pasien Dropdown -->
+                        <div class="mb-4">
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                                <span class="flex items-center gap-1.5">
+                                    <i data-lucide="users" class="w-3.5 h-3.5 text-teal-600"></i>
+                                    Kelompok Pasien (Safety Checker):
+                                </span>
+                                <span class="text-[10px] text-teal-600 font-semibold">Cek Kontraindikasi</span>
+                            </label>
+                            <select id="patientGroupSelect" class="w-full text-xs p-3 bg-slate-50/80 border border-slate-200 rounded-xl font-semibold text-slate-800 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:outline-none transition">
+                                <option value="DEWASA">Dewasa Umum (18 - 64 tahun)</option>
+                                <option value="ANAK">Anak-anak (2 - 17 tahun) • Waspada Sindrom Reye</option>
+                                <option value="BAYI">Bayi & Balita (&lt; 2 tahun) • Waspada Salep Keras</option>
+                                <option value="HAMIL_MENYUSUI">Ibu Hamil / Menyusui • Waspada Teratogenik</option>
+                            </select>
+                        </div>
+
+                        <!-- Peta Lokasi Anatomis Tubuh (Body Map) -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-2 flex items-center justify-between">
+                                <span class="flex items-center gap-1.5">
+                                    <i data-lucide="map-pin" class="w-3.5 h-3.5 text-teal-600"></i>
+                                    Lokasi Anatomis Tubuh (Body Map):
+                                </span>
+                                <span id="currentBodyLocationLabel" class="text-[11px] font-extrabold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">Otomatis (AI Scan)</span>
+                            </label>
+                            <div class="grid grid-cols-4 gap-1.5 text-[11px] font-semibold text-center">
+                                <button type="button" id="bodyLoc_AUTO" onclick="setBodyLocation('AUTO')" class="py-2 px-1 rounded-xl bg-white border border-teal-500 text-teal-700 shadow-xs font-bold transition">
+                                    🤖 Auto
+                                </button>
+                                <button type="button" id="bodyLoc_KEPALA_WAJAH" onclick="setBodyLocation('KEPALA_WAJAH')" class="py-2 px-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition">
+                                    👤 Wajah
+                                </button>
+                                <button type="button" id="bodyLoc_DADA_PERUT" onclick="setBodyLocation('DADA_PERUT')" class="py-2 px-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition">
+                                    👕 Dada/Perut
+                                </button>
+                                <button type="button" id="bodyLoc_PUNGGUNG" onclick="setBodyLocation('PUNGGUNG')" class="py-2 px-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition">
+                                    🛡️ Punggung
+                                </button>
+                                <button type="button" id="bodyLoc_SELA_JARI_TANGAN" onclick="setBodyLocation('SELA_JARI_TANGAN')" class="py-2 px-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition">
+                                    🖐️ Sela Jari
+                                </button>
+                                <button type="button" id="bodyLoc_LUTUT_SIKU_KAKI" onclick="setBodyLocation('LUTUT_SIKU_KAKI')" class="py-2 px-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition">
+                                    🦵 Kaki/Siku
+                                </button>
+                                <button type="button" id="bodyLoc_KUKU_JARI" onclick="setBodyLocation('KUKU_JARI')" class="py-2 px-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition">
+                                    💅 Kuku
+                                </button>
+                                <button type="button" id="bodyLoc_PINGGANG_DERMATOM" onclick="setBodyLocation('PINGGANG_DERMATOM')" class="py-2 px-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition">
+                                    ⚡ Dermatom
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LANGKAH 2: FOKUS MAKRO & UNGGAH FOTO CITRA KLINIS -->
+                    <div class="glass-card rounded-2xl p-5 shadow-card-glow">
+                        <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-6 h-6 rounded-lg bg-sky-600 text-white font-extrabold text-xs flex items-center justify-center shadow-xs">2</span>
+                                <div>
+                                    <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Fokus Makro & Foto Lesi</h3>
+                                    <p class="text-[11px] text-slate-500">Pilih kategori keluhan dan unggah foto jelas</p>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 bg-sky-50 text-sky-700 rounded-md border border-sky-200">Quality Gatekeeper Aktif</span>
+                        </div>
+
+                        <!-- Segmented Pill Selector: Fokus Makro -->
+                        <div class="mb-4">
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Fokus Makro Pemeriksaan:</label>
+                            <div class="grid grid-cols-3 gap-1.5 bg-slate-100/90 p-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-center mb-1.5">
+                                <button type="button" id="btnCatAuto" onclick="setComplaintCategory('AUTO')" class="py-2 px-1 rounded-lg bg-white text-teal-700 shadow-xs font-bold transition">
+                                    🤖 Otomatis
+                                </button>
+                                <button type="button" id="btnCatWound" onclick="setComplaintCategory('LUKA')" class="py-2 px-1 rounded-lg text-slate-600 hover:text-slate-900 font-medium transition">
+                                    🩹 Luka Fisik
+                                </button>
+                                <button type="button" id="btnCatItch" onclick="setComplaintCategory('GATAL')" class="py-2 px-1 rounded-lg text-slate-600 hover:text-slate-900 font-medium transition">
+                                    🌿 Kulit / Gatal
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-1.5 bg-slate-100/90 p-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-center">
+                                <button type="button" id="btnCatNail" onclick="setComplaintCategory('KUKU')" class="py-2 px-1 rounded-lg text-slate-600 hover:text-slate-900 font-medium transition">
+                                    💅 Kuku (Cantengan/Jamur)
+                                </button>
+                                <button type="button" id="btnCatHair" onclick="setComplaintCategory('RAMBUT')" class="py-2 px-1 rounded-lg text-slate-600 hover:text-slate-900 font-medium transition">
+                                    💇 Rambut (Ketombe/Pitak)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Drop Zone Unggah Foto -->
+                        <div id="dropZone" class="group relative border-2 border-dashed border-slate-300 hover:border-teal-500 rounded-2xl p-5 text-center cursor-pointer transition-all duration-200 bg-slate-50/50 hover:bg-teal-50/20">
+                            <input type="file" id="fileInput" accept="image/*" class="hidden">
+                            
+                            <!-- Container Preview Foto -->
+                            <div id="previewContainer" class="hidden relative">
+                                <img id="imagePreview" class="max-h-60 mx-auto rounded-xl shadow-md object-cover border border-slate-200" src="" alt="Preview Citra Medis">
+                                <button id="removeBtn" class="absolute top-2 right-2 p-2 bg-slate-900/75 hover:bg-rose-600 rounded-full text-white transition shadow-sm">
+                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+
+                            <!-- Upload Prompt -->
+                            <div id="uploadPrompt" class="py-5">
+                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-teal-100 to-emerald-100 text-teal-700 flex items-center justify-center mx-auto mb-3 shadow-xs group-hover:scale-105 transition transform">
+                                    <i data-lucide="camera" class="w-7 h-7"></i>
+                                </div>
+                                <p class="text-sm font-bold text-slate-800">Ambil Foto atau Pilih dari Galeri</p>
+                                <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
+                                    Luka tusuk, gigitan hewan, luka bakar, ruam merah, cantengan, jamur, atau kebotakan
+                                </p>
+                                <div class="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded-full text-[11px] font-semibold text-slate-600 shadow-2xs">
+                                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-teal-600"></i>
+                                    <span>Pemeriksaan Ketajaman & Kualitas Citra Otomatis</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LANGKAH 3: CIRI GEJALA SPESIFIK & SKALA NYERI SUBJEKTIF -->
+                    <div class="glass-card rounded-2xl p-5 shadow-card-glow">
+                        <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-6 h-6 rounded-lg bg-indigo-600 text-white font-extrabold text-xs flex items-center justify-center shadow-xs">3</span>
+                                <div>
+                                    <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Ciri Gejala & Skala Nyeri</h3>
+                                    <p class="text-[11px] text-slate-500">Keluhan subjektif untuk mempertajam akurasi triase</p>
+                                </div>
+                            </div>
+                            <!-- Mini Tabs Kategori Gejala -->
+                            <div class="flex gap-1 text-[11px] font-semibold bg-slate-100 p-0.5 rounded-lg">
+                                <button type="button" id="tabSymWound" onclick="switchSymptomTab('wound')" class="px-2 py-0.5 rounded text-slate-600 hover:text-slate-900 transition">Luka</button>
+                                <button type="button" id="tabSymSkin" onclick="switchSymptomTab('skin')" class="px-2 py-0.5 rounded bg-white text-teal-700 shadow-xs font-bold transition">Kulit</button>
+                                <button type="button" id="tabSymNail" onclick="switchSymptomTab('nail')" class="px-2 py-0.5 rounded text-slate-600 hover:text-slate-900 transition">Kuku</button>
+                                <button type="button" id="tabSymHair" onclick="switchSymptomTab('hair')" class="px-2 py-0.5 rounded text-slate-600 hover:text-slate-900 transition">Rambut</button>
+                            </div>
+                        </div>
+
+                        <!-- Sub-Group 0: Gejala Ragam Luka Fisik -->
+                        <div id="symGroupWound" class="hidden space-y-2 text-xs">
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-rose-200 bg-rose-50/40 hover:bg-rose-50 hover:border-rose-300 cursor-pointer transition select-none">
+                                <input type="checkbox" id="symPuncture" class="mt-0.5 w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500 shrink-0">
+                                <div>
+                                    <span class="text-rose-950 font-bold block">Tertusuk paku / kawat / duri tajam</span>
+                                    <span class="text-[11px] text-rose-700">Waspada bahaya spora Tetanus anaerob dalam jaringan dalam</span>
+                                </div>
+                            </label>
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-rose-200 bg-rose-50/40 hover:bg-rose-50 hover:border-rose-300 cursor-pointer transition select-none">
+                                <input type="checkbox" id="symAnimalBite" class="mt-0.5 w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500 shrink-0">
+                                <div>
+                                    <span class="text-rose-950 font-bold block">Gigitan / cakaran anjing, kucing, kera liar</span>
+                                    <span class="text-[11px] text-rose-700">Waspada infeksi virus Rabies & bakteri Pasteurella</span>
+                                </div>
+                            </label>
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-rose-200 bg-rose-50/40 hover:bg-rose-50 hover:border-rose-300 cursor-pointer transition select-none">
+                                <input type="checkbox" id="symBurnCharred" class="mt-0.5 w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500 shrink-0">
+                                <div>
+                                    <span class="text-rose-950 font-bold block">Luka bakar hangus arang / putih lilin mati rasa</span>
+                                    <span class="text-[11px] text-rose-700">Luka bakar derajat 3 (Full-thickness) - butuh penanganan bedah</span>
+                                </div>
+                            </label>
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-amber-200 bg-amber-50/30 hover:bg-amber-50/60 hover:border-amber-300 cursor-pointer transition select-none">
+                                <input type="checkbox" id="symBurnBlister" class="mt-0.5 w-4 h-4 text-amber-600 rounded border-slate-300 focus:ring-amber-500 shrink-0">
+                                <div>
+                                    <span class="text-amber-950 font-bold block">Luka bakar melepuh gelembung air (Bula)</span>
+                                    <span class="text-[11px] text-amber-700">Luka bakar derajat 2 (Partial thickness) - jangan dipecahkan</span>
+                                </div>
+                            </label>
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-teal-300 cursor-pointer transition select-none">
+                                <input type="checkbox" id="symBedsores" class="mt-0.5 w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500 shrink-0">
+                                <div>
+                                    <span class="text-slate-800 font-bold block">Luka borok tekan tirah baring lama / stroke</span>
+                                    <span class="text-[11px] text-slate-500">Ulkus dekubitus akibat iskemia jaringan berkepanjangan</span>
+                                </div>
+                            </label>
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-teal-300 cursor-pointer transition select-none">
+                                <input type="checkbox" id="symBruiseBlunt" class="mt-0.5 w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500 shrink-0">
+                                <div>
+                                    <span class="text-slate-800 font-semibold block">Benturan tumpul timbul memar lebam kebiruan</span>
+                                    <span class="text-[11px] text-slate-500">Hematoma subkutan / kontusio jaringan lunak</span>
+                                </div>
+                            </label>
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-teal-300 cursor-pointer transition select-none">
+                                <input type="checkbox" id="symCleanCut" class="mt-0.5 w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500 shrink-0">
+                                <div>
+                                    <span class="text-slate-800 font-semibold block">Sayatan pisau / kaca tepi lurus rapi</span>
+                                    <span class="text-[11px] text-slate-500">Luka sayat (vulnus scissum) bertepi rata</span>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <!-- Sub-Group 1: Gejala Kulit & Gatal -->
+                        <div id="symGroupSkin" class="space-y-2 text-xs">
+                            <label class="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-teal-50/40 hover:border-teal-300 cursor-pointer transition select-none">
+                                <input type="checkbox" id="symItch" class="w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500 shrink-0">
+                                <span class="text-slate-800 font-semibold">Terasa sangat gatal / dorongan menggaruk</span>
+                            </label>
+                            <label class="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-teal-50/40 hover:border-teal-300 cursor-pointer transition select-none">
+                                <input type="checkbox" id="symBumps" class="w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500 shrink-0">
+                                <span class="text-slate-800 font-semibold">Bentol merah menonjol tiba-tiba berpindah (Biduran / Urtikaria)</span>
+                            </label>
+                            <label class="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-teal-50/40 hover:border-teal-300 cursor-pointer transition select-none">
+                                <input type="checkbox" id="symNight" class="w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500 shrink-0">
+                                <span class="text-slate-800 font-semibold">Gatal memuncak malam hari di sela jari / lipatan (Skabies / Kudis)</span>
+                            </label>
+                            <label class="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-teal-50/40 hover:border-teal-300 cursor-pointer transition select-none">
+                                <input type="checkbox" id="symRing" class="w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500 shrink-0">
+                                <span class="text-slate-800 font-semibold">Ruam melingkar mirip cincin tepi merah aktif (Kurap / Kadas)</span>
+                            </label>
+                            <label class="flex items-center gap-3 p-2.5 rounded-xl border border-rose-200 bg-rose-50/30 hover:bg-rose-50 hover:border-rose-300 cursor-pointer transition select-none">
+                                <input type="checkbox" id="symBlister" class="w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500 shrink-0">
+                                <span class="text-rose-950 font-bold">Lenting gelembung kecil berair (Cacar Air / Herpes Zoster)</span>
+                            </label>
+                            <label class="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-teal-50/40 hover:border-teal-300 cursor-pointer transition select-none">
+                                <input type="checkbox" id="symDry" class="w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500 shrink-0">
+                                <span class="text-slate-800 font-semibold">Kulit sangat kering, menebal dan bersisik (Eksim / Dermatitis)</span>
+                            </label>
+                        </div>
+
+                        <!-- Sub-Group 2: Gejala Kuku -->
+                        <div id="symGroupNail" class="hidden space-y-2 text-xs">
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-rose-200 bg-rose-50/40 hover:bg-rose-50 hover:border-rose-300 cursor-pointer transition select-none">
+                                <input type="checkbox" id="symNailIngrown" class="mt-0.5 w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500 shrink-0">
+                                <div>
+                                    <span class="text-rose-950 font-bold block">Tepi kuku menusuk daging bengkak bernanah</span>
+                                    <span class="text-[11px] text-rose-700">Cantengan (Ingrown Toenail / Paronikia)</span>
+                                </div>
+                            </label>
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-teal-300 cursor-pointer transition select-none">
+                                <input type="checkbox" id="symNailFungus" class="mt-0.5 w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500 shrink-0">
+                                <div>
+                                    <span class="text-slate-800 font-bold block">Kuku menebal, rapuh berwarna kuning/kecokelatan</span>
+                                    <span class="text-[11px] text-slate-500">Jamur Kuku (Onikomikosis)</span>
+                                </div>
+                            </label>
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-teal-300 cursor-pointer transition select-none">
+                                <input type="checkbox" id="symNailTrauma" class="mt-0.5 w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500 shrink-0">
+                                <div>
+                                    <span class="text-slate-800 font-semibold block">Kuku terjepit pintu timbul bercak darah hitam/ungu</span>
+                                    <span class="text-[11px] text-slate-500">Hematoma Subungual akibat trauma</span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Sub-Group 3: Gejala Rambut & Kulit Kepala -->
+                        <div id="symGroupHair" class="hidden space-y-2 text-xs">
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-teal-300 cursor-pointer transition select-none">
+                                <input type="checkbox" id="symScalpDandruff" class="mt-0.5 w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500 shrink-0">
+                                <div>
+                                    <span class="text-slate-800 font-bold block">Ketombe tebal berkerak kuning berminyak</span>
+                                    <span class="text-[11px] text-slate-500">Dermatitis Seboroik / Cradle Cap</span>
+                                </div>
+                            </label>
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-amber-200 bg-amber-50/30 hover:bg-amber-50 hover:border-amber-300 cursor-pointer transition select-none">
+                                <input type="checkbox" id="symHairLossPatch" class="mt-0.5 w-4 h-4 text-amber-600 rounded border-slate-300 focus:ring-amber-500 shrink-0">
+                                <div>
+                                    <span class="text-amber-950 font-bold block">Rambut rontok pitak koin bulat licin</span>
+                                    <span class="text-[11px] text-amber-700">Alopecia Areata (Kebotakan setempat autoimun)</span>
+                                </div>
+                            </label>
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-teal-300 cursor-pointer transition select-none">
+                                <input type="checkbox" id="symHeadLice" class="mt-0.5 w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500 shrink-0">
+                                <div>
+                                    <span class="text-slate-800 font-semibold block">Gatal merayap & bintik telur kutu menempel di rambut</span>
+                                    <span class="text-[11px] text-slate-500">Pedikulosis Kapitis (Kutu Kepala)</span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Skala Nyeri Visual -->
+                        <div class="mt-4 pt-3 border-t border-slate-100">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                    <i data-lucide="heart-pulse" class="w-3.5 h-3.5 text-rose-500"></i>
+                                    Skala Nyeri / Perih (1 - 10):
+                                </span>
+                                <span id="painLabel" class="text-xs font-black px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-800 border border-slate-200 shadow-2xs">
+                                    1/10 (😊 Bebas Nyeri / Ringan)
+                                </span>
+                            </div>
+                            <input type="range" id="painSlider" min="1" max="10" value="1" class="medical-slider w-full cursor-pointer">
+                            <div class="flex justify-between text-[10px] text-slate-600 font-semibold px-1 mt-1.5">
+                                <span>1 (Nyaman)</span>
+                                <span>5 (Sedang)</span>
+                                <span>10 (Ekstrem)</span>
+                            </div>
+                        </div>
+
+                        <!-- Tanda Bahaya Darurat / Red Flags Collapsible -->
+                        <div class="mt-4 pt-3 border-t border-slate-100">
+                            <details class="text-xs group">
+                                <summary class="font-bold text-rose-700 cursor-pointer hover:text-rose-800 select-none flex items-center justify-between p-2 rounded-xl bg-rose-50/50 border border-rose-100 transition">
+                                    <span class="flex items-center gap-1.5">
+                                        <i data-lucide="alert-octagon" class="w-3.5 h-3.5 text-rose-600"></i>
+                                        Tanda Bahaya Luka / Red Flags (Opsional)
+                                    </span>
+                                    <i data-lucide="chevron-down" class="w-3.5 h-3.5 transition-transform group-open:rotate-180"></i>
+                                </summary>
+                                <div class="mt-2.5 space-y-2 p-2.5 bg-rose-50/30 rounded-xl border border-rose-100/80">
+                                    <label class="flex items-center gap-2 cursor-pointer select-none">
+                                        <input type="checkbox" id="riskTetanus" class="w-3.5 h-3.5 text-rose-600 rounded">
+                                        <span class="text-slate-800 font-medium">Tercampur paku berkarat / tanah kotor (Risiko Tetanus)</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer select-none">
+                                        <input type="checkbox" id="riskBleeding" class="w-3.5 h-3.5 text-rose-600 rounded">
+                                        <span class="text-slate-800 font-medium">Pendarahan deras tidak berhenti > 10 menit</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer select-none">
+                                        <input type="checkbox" id="riskDeep" class="w-3.5 h-3.5 text-rose-600 rounded">
+                                        <span class="text-slate-800 font-medium">Luka robek menganga dalam (>0.5 cm) terlihat lemak/otot</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer select-none">
+                                        <input type="checkbox" id="riskFace" class="w-3.5 h-3.5 text-rose-600 rounded">
+                                        <span class="text-slate-800 font-medium">Lokasi di area wajah dekat mata atau sendi utama</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer select-none">
+                                        <input type="checkbox" id="riskFever" class="w-3.5 h-3.5 text-rose-600 rounded">
+                                        <span class="text-slate-800 font-medium">Disertai demam tinggi sistemik atau menggigil</span>
+                                    </label>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+
+                    <!-- TOMBOL CTA UTAMA: ANALISIS INTEGRATIF -->
+                    <button id="analyzeBtn" class="w-full py-4 px-6 bg-gradient-to-r from-teal-600 via-teal-700 to-emerald-600 hover:from-teal-500 hover:via-teal-600 hover:to-emerald-500 text-white text-sm font-black rounded-2xl shadow-lg shadow-teal-700/25 flex items-center justify-center gap-2.5 transform active:scale-[0.99] transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                        <span>Analisis Integumen, Luka & Triase Medis</span>
+                    </button>
+                </div>
+
+                <!-- ================================================================= -->
+                <!-- KOLOM KANAN: HASIL DIAGNOSTIK & CLINICAL DASHBOARD CDSS -->
+                <!-- ================================================================= -->
+                <div class="lg:col-span-7 space-y-6">
+                    
+                    <!-- PLACEHOLDER KOSONG (EMPTY STATE) -->
+                    <div id="emptyState" class="glass-card rounded-3xl p-10 text-center shadow-card-glow border border-slate-200/80">
+                        <div class="w-20 h-20 rounded-3xl bg-gradient-to-tr from-teal-50 to-emerald-100 text-teal-700 flex items-center justify-center mx-auto mb-4 border border-teal-200/50 shadow-inner">
+                            <i data-lucide="scan" class="w-10 h-10"></i>
+                        </div>
+                        <h4 class="text-lg font-black text-slate-900">Belum Ada Pemeriksaan Aktif</h4>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-1.5 max-w-md mx-auto leading-relaxed">
+                            Unggah foto luka fisik, ruam kulit, kuku, atau rambut. AI Decision Support System akan memeriksa kualitas foto, memetakan gradien jaringan, dan memberikan triase medis darurat secara real-time.
+                        </p>
+                        
+                        <!-- 4 Highlight Fitur Utama -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-6 max-w-lg mx-auto text-left">
+                            <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                                <span class="text-teal-700 text-[10px] font-extrabold uppercase block mb-1">Tahap 1 & 2</span>
+                                <span class="text-xs font-bold text-slate-800">Hierarchical Vision AI</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                                <span class="text-emerald-700 text-[10px] font-extrabold uppercase block mb-1">Metrik TIME</span>
+                                <span class="text-xs font-bold text-slate-800">Komposisi Jaringan $cm^2$</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                                <span class="text-sky-700 text-[10px] font-extrabold uppercase block mb-1">Explainable</span>
+                                <span class="text-xs font-bold text-slate-800">Peta Panas Grad-CAM</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                                <span class="text-indigo-700 text-[10px] font-extrabold uppercase block mb-1">Safety Guard</span>
+                                <span class="text-xs font-bold text-slate-800">Cek Kontraindikasi</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LOADING STATE ANIMASI -->
+                    <div id="loadingState" class="hidden glass-card rounded-3xl p-12 text-center shadow-card-glow border border-slate-200">
+                        <div class="relative w-16 h-16 mx-auto mb-5">
+                            <div class="w-16 h-16 border-4 border-teal-200 border-t-teal-600 rounded-full animate-spin"></div>
+                            <div class="absolute inset-0 flex items-center justify-center text-teal-600">
+                                <i data-lucide="activity" class="w-6 h-6 animate-pulse"></i>
+                            </div>
+                        </div>
+                        <h4 class="text-base sm:text-lg font-black text-slate-900">Menganalisis Jaringan & Gejala Klinis...</h4>
+                        <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                            Menjalankan Quality Gatekeeper, Model Hierarkis 2-Tahap, Grad-CAM, Analisis TIME, dan Safety Checker.
+                        </p>
+                    </div>
+
+                    <!-- RESULT CARD (DASHBOARD LENGKAP CDSS) -->
+                    <div id="resultCard" class="hidden space-y-5">
+                        
+                        <!-- Peringatan Kualitas Citra (Gatekeeper Banner) -->
+                        <div id="qualityBanner" class="hidden p-4 rounded-2xl border flex items-start gap-3.5 text-xs shadow-2xs">
+                            <i id="qualityIcon" data-lucide="alert-triangle" class="w-5 h-5 shrink-0 mt-0.5"></i>
+                            <div class="flex-1">
+                                <span id="qualityTitle" class="font-black block">Peringatan Kualitas Citra:</span>
+                                <p id="qualityDesc" class="mt-0.5 leading-relaxed font-medium"></p>
+                            </div>
+                        </div>
+
+                        <!-- Banner Level Triase Utama (Ambient Glow) -->
+                        <div id="triageBanner" class="p-6 rounded-3xl border flex flex-col sm:flex-row items-start sm:items-center gap-4.5 shadow-md transition-all">
+                            <div id="triageIconWrapper" class="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
+                                <i id="triageIcon" data-lucide="shield-check" class="w-7 h-7"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between gap-2 mb-1">
+                                    <span id="triageBadge" class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider shadow-2xs">
+                                        LEVEL TRIASE
+                                    </span>
+                                    <span id="confidenceBadge" class="text-xs font-bold text-slate-600 bg-white/80 px-2.5 py-0.5 rounded-md border border-slate-200/60 shadow-2xs">
+                                        Keyakinan: 92%
+                                    </span>
+                                </div>
+                                <h3 id="triageTitle" class="text-xl sm:text-2xl font-black tracking-tight mt-1">Nama Kondisi</h3>
+                                <p id="triageAction" class="text-xs sm:text-sm font-bold mt-1 leading-snug"></p>
+                                
+                                <!-- Alasan Triase Medis -->
+                                <ul id="triageReasonsList" class="mt-2.5 text-xs space-y-1 opacity-90 font-medium"></ul>
+                            </div>
+                        </div>
+
+                        <!-- Emergency Facility Locator (Hanya Muncul Saat Triase MERAH) -->
+                        <div id="emergencyLocatorBanner" class="hidden p-5 rounded-3xl bg-gradient-to-r from-rose-600 via-rose-700 to-red-700 text-white shadow-triage-red flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-rose-500/50 animate-subtle-pulse">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center shrink-0 shadow-inner">
+                                    <i data-lucide="ambulance" class="w-6 h-6 text-white animate-bounce"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h4 class="text-xs font-black uppercase tracking-wider text-rose-100">Kondisi Kegawatdaruratan Medis (Level MERAH)</h4>
+                                        <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+                                    </div>
+                                    <p class="text-xs sm:text-sm font-black text-white mt-0.5">Segera kunjungi IGD Rumah Sakit atau Fasilitas Medis Terdekat!</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2 w-full sm:w-auto">
+                                <a href="https://www.google.com/maps/search/IGD+rumah+sakit+terdekat" target="_blank" class="flex-1 sm:flex-none px-4 py-2.5 bg-white text-rose-700 hover:bg-rose-50 text-xs font-black rounded-xl shadow-md text-center flex items-center justify-center gap-1.5 transition">
+                                    <i data-lucide="navigation" class="w-4 h-4"></i>
+                                    Navigasi IGD Terdekat
+                                </a>
+                                <a href="tel:119" class="px-4 py-2.5 bg-rose-900/90 hover:bg-rose-950 text-white text-xs font-black rounded-xl flex items-center justify-center gap-1.5 transition shadow-md">
+                                    <i data-lucide="phone-call" class="w-4 h-4"></i>
+                                    119
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- 2-COLUMN GRID: DIAGNOSIS BANDING (DDx) & SAFETY WARNINGS -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            
+                            <!-- Top-3 Differential Diagnosis (DDx) Card -->
+                            <div id="differentialDiagnosisCard" class="glass-card rounded-2xl p-5 shadow-card-glow">
+                                <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-lg bg-teal-600 text-white flex items-center justify-center shadow-xs">
+                                            <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Top-3 Diagnosis Banding (DDx)</h4>
+                                            <p class="text-[11px] text-slate-500">Probabilitas klinis komparatif</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md">Multi-Class</span>
+                                </div>
+                                <div id="differentialList" class="space-y-2.5">
+                                    <!-- Dynamic Items Filled by JS -->
+                                </div>
+                            </div>
+
+                            <!-- Drug Safety & Demographic Warnings Alert Card -->
+                            <div id="safetyWarningsCard" class="hidden glass-card rounded-2xl p-5 shadow-card-glow border-amber-200/80 bg-gradient-to-br from-white to-amber-50/20">
+                                <div class="flex items-center gap-2 mb-3 border-b border-amber-100 pb-2">
+                                    <div class="w-6 h-6 rounded-lg bg-amber-500 text-white flex items-center justify-center shadow-xs">
+                                        <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-xs font-bold text-amber-900 uppercase tracking-wider">Safety & Kontraindikasi Obat</h4>
+                                        <p class="text-[11px] text-amber-700">Pencegahan bahaya farmakologis</p>
+                                    </div>
+                                </div>
+                                <div id="safetyWarningsList" class="space-y-2 text-xs">
+                                    <!-- Dynamic warnings filled by JS -->
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- 2-COLUMN GRID: GRAD-CAM HEATMAP & TIME TISSUE FRAMEWORK -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            
+                            <!-- Komparasi Explainable AI (Grad-CAM) -->
+                            <div class="glass-card rounded-2xl p-5 shadow-card-glow">
+                                <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
+                                    <div>
+                                        <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                                            <i data-lucide="eye" class="w-4 h-4 text-teal-600"></i>
+                                            Explainable AI (Grad-CAM)
+                                        </h4>
+                                        <p class="text-[11px] text-slate-500">Peta panas fokus perhatian model visual</p>
+                                    </div>
+                                    <span class="text-[10px] font-bold px-2 py-0.5 bg-teal-50 text-teal-700 rounded-md border border-teal-200">Transparansi</span>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div class="text-center">
+                                        <div class="bg-slate-100 rounded-xl overflow-hidden aspect-square flex items-center justify-center border border-slate-200 shadow-inner">
+                                            <img id="resOriginalImg" class="w-full h-full object-cover" src="" alt="Foto Asli">
+                                        </div>
+                                        <span class="text-[11px] font-bold text-slate-600 mt-1.5 block">Foto Asli</span>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="bg-slate-100 rounded-xl overflow-hidden aspect-square flex items-center justify-center border border-slate-200 shadow-inner">
+                                            <img id="resHeatmapImg" class="w-full h-full object-cover" src="" alt="Heatmap Grad-CAM">
+                                        </div>
+                                        <span class="text-[11px] font-bold text-teal-700 mt-1.5 block">Peta Panas Grad-CAM</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Analisis Jaringan Klinis (TIME Framework) -->
+                            <div id="tissueSection" class="glass-card rounded-2xl p-5 shadow-card-glow">
+                                <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-lg bg-teal-600 text-white flex items-center justify-center shadow-xs">
+                                            <i data-lucide="pie-chart" class="w-3.5 h-3.5"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Komposisi TIME</h4>
+                                            <p class="text-[11px] text-slate-500">Karakteristik jaringan lesi / luka</p>
+                                        </div>
+                                    </div>
+                                    <span id="severityBadge" class="text-xs font-black px-2.5 py-0.5 bg-teal-50 text-teal-700 border border-teal-200 rounded-md">
+                                        Estimasi: 3.2 cm²
+                                    </span>
+                                </div>
+
+                                <!-- Progress Bar Komposisi Jaringan Segmen -->
+                                <div class="w-full h-4 bg-slate-100 rounded-full overflow-hidden flex mb-3 shadow-inner border border-slate-200/60">
+                                    <div id="barGranulation" class="bg-gradient-to-r from-rose-500 to-rose-600 transition-all duration-500" style="width: 70%" title="Granulasi (Merah)"></div>
+                                    <div id="barSlough" class="bg-gradient-to-r from-amber-300 to-amber-400 transition-all duration-500" style="width: 25%" title="Slough/Nanah (Kuning)"></div>
+                                    <div id="barNecrotic" class="bg-gradient-to-r from-slate-800 to-black transition-all duration-500" style="width: 5%" title="Nekrotik (Hitam)"></div>
+                                </div>
+
+                                <!-- Keterangan Jaringan Grid -->
+                                <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                                    <div class="p-2.5 rounded-xl bg-rose-50/70 border border-rose-100">
+                                        <span class="text-[10px] text-rose-700 block font-bold">Granulasi</span>
+                                        <span id="valGranulation" class="text-sm font-black text-rose-900">70%</span>
+                                    </div>
+                                    <div class="p-2.5 rounded-xl bg-amber-50/70 border border-amber-100">
+                                        <span class="text-[10px] text-amber-700 block font-bold">Slough / Eksudat</span>
+                                        <span id="valSlough" class="text-sm font-black text-amber-900">25%</span>
+                                    </div>
+                                    <div class="p-2.5 rounded-xl bg-slate-100 border border-slate-200">
+                                        <span class="text-[10px] text-slate-700 block font-bold">Nekrotik</span>
+                                        <span id="valNecrotic" class="text-sm font-black text-slate-900">5%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Skrining ABCDE Melanoma (Bila Ada Lesi Berpigmen) -->
+                        <div id="abcdeCard" class="hidden glass-card rounded-2xl p-5 shadow-card-glow border-indigo-200 bg-gradient-to-br from-white to-indigo-50/20">
+                            <div class="flex items-center justify-between mb-3 border-b border-indigo-100 pb-2">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center">
+                                        <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Skrining ABCDE Tahi Lalat / Melanoma</h4>
+                                </div>
+                                <span id="abcdeRiskBadge" class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-indigo-50 text-indigo-800 border border-indigo-200">
+                                    Risiko Rendah
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-4 gap-2 text-center text-xs mb-3">
+                                <div class="p-2 rounded-xl bg-white border border-slate-100 shadow-2xs">
+                                    <span class="text-[10px] text-slate-500 block">Asymmetry</span>
+                                    <b id="valAsymmetry" class="text-xs text-slate-800">0.2</b>
+                                </div>
+                                <div class="p-2 rounded-xl bg-white border border-slate-100 shadow-2xs">
+                                    <span class="text-[10px] text-slate-500 block">Border</span>
+                                    <b id="valBorder" class="text-xs text-slate-800">0.3</b>
+                                </div>
+                                <div class="p-2 rounded-xl bg-white border border-slate-100 shadow-2xs">
+                                    <span class="text-[10px] text-slate-500 block">Color Var</span>
+                                    <b id="valColorVar" class="text-xs text-slate-800">0.2</b>
+                                </div>
+                                <div class="p-2 rounded-xl bg-white border border-slate-100 shadow-2xs">
+                                    <span class="text-[10px] text-slate-500 block">Diameter</span>
+                                    <b id="valDiameter" class="text-xs text-slate-800">3.5 mm</b>
+                                </div>
+                            </div>
+                            <p id="abcdeRecText" class="text-xs text-slate-700 bg-white/80 p-3 rounded-xl border border-slate-200 leading-relaxed font-medium"></p>
+                        </div>
+
+                        <!-- CDSS Anamnesis Adaptif Terarah (Dynamic Guided Questions) -->
+                        <div id="adaptiveQuestionsCard" class="hidden glass-card rounded-2xl p-5 shadow-card-glow border-teal-200 bg-gradient-to-br from-white to-teal-50/30">
+                            <div class="flex items-center gap-2.5 mb-3 border-b border-teal-100 pb-2">
+                                <div class="w-6 h-6 rounded-lg bg-teal-600 text-white flex items-center justify-center">
+                                    <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Anamnesis Adaptif Terarah</h4>
+                                    <p class="text-[11px] text-slate-500">Pertanyaan klinis spesifik berbasis citra terdeteksi</p>
+                                </div>
+                            </div>
+                            <div id="adaptiveQuestionsList" class="space-y-3 text-xs"></div>
+                        </div>
+
+                        <!-- Tab Informasi & Edukasi Medis -->
+                        <div class="glass-card rounded-3xl overflow-hidden shadow-card-glow border border-slate-200">
+                            <div class="flex border-b border-slate-200 px-4 text-xs font-semibold text-slate-500 bg-slate-50/50">
+                                <button class="tab-btn active py-3.5 px-3.5 flex items-center gap-1.5 transition" onclick="switchTab('p3k')">
+                                    <i data-lucide="first-aid" class="w-3.5 h-3.5 text-teal-600"></i> Perawatan P3K
+                                </button>
+                                <button class="tab-btn py-3.5 px-3.5 flex items-center gap-1.5 transition" onclick="switchTab('obat')">
+                                    <i data-lucide="pill" class="w-3.5 h-3.5 text-sky-600"></i> Obat Bebas
+                                </button>
+                                <button class="tab-btn py-3.5 px-3.5 flex items-center gap-1.5 transition" onclick="switchTab('mitos')">
+                                    <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-500"></i> Pantangan & Mitos
+                                </button>
+                                <button class="tab-btn py-3.5 px-3.5 flex items-center gap-1.5 transition" onclick="switchTab('redflags')">
+                                    <i data-lucide="ambulance" class="w-3.5 h-3.5 text-amber-500"></i> Kapan ke Faskes
+                                </button>
+                            </div>
+
+                            <div class="p-6 text-sm">
+                                <div id="tab-p3k" class="space-y-3.5">
+                                    <p id="conditionDesc" class="text-xs text-slate-700 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 leading-relaxed font-medium"></p>
+                                    <h5 class="text-xs font-black uppercase tracking-wider text-teal-700">Langkah Penanganan Medis Awal:</h5>
+                                    <ul id="p3kList" class="space-y-2.5"></ul>
+                                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-semibold">
+                                        <span>Estimasi Waktu Pemulihan:</span>
+                                        <span id="healingTime" class="font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-full border border-slate-200"></span>
+                                    </div>
+                                </div>
+
+                                <div id="tab-obat" class="hidden space-y-3">
+                                    <p class="text-xs text-slate-600 mb-2 font-medium">Obat bebas (OTC) yang relatif aman digunakan tanpa resep dokter:</p>
+                                    <ul id="obatList" class="space-y-2"></ul>
+                                </div>
+
+                                <div id="tab-mitos" class="hidden space-y-3">
+                                    <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-900 font-bold flex items-center gap-2">
+                                        <i data-lucide="alert-octagon" class="w-4 h-4 text-rose-600 shrink-0"></i>
+                                        <span>Peringatan Klinis: Hindari mitos, odol, kecap, atau ramuan berbahaya berikut!</span>
+                                    </div>
+                                    <ul id="mitosList" class="space-y-2"></ul>
+                                </div>
+
+                                <div id="tab-redflags" class="hidden space-y-3">
+                                    <p class="text-xs text-slate-600 mb-2 font-medium">Segera periksakan diri ke dokter atau fasilitas kesehatan terdekat jika:</p>
+                                    <ul id="redflagsList" class="space-y-2"></ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Konsultasi Interaktif AI (Telehealth Doctor Chatbot Widget) -->
+                        <div id="consultChatCard" class="glass-card rounded-3xl p-5 sm:p-6 shadow-card-glow border-teal-200 bg-gradient-to-br from-white via-slate-50/50 to-teal-50/20">
+                            <div class="flex items-center justify-between mb-3.5 border-b border-slate-100 pb-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-2xl bg-gradient-to-tr from-teal-600 to-emerald-500 text-white flex items-center justify-center shadow-xs">
+                                        <i data-lucide="message-square" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-xs font-black text-slate-900 uppercase tracking-wider">Konsultasi Virtual SmartTriage AI</h4>
+                                        <p class="text-[11px] text-slate-500">Tanyakan seputar panduan mandi, pantangan makan, bekas luka, atau obat</p>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] font-black px-2.5 py-0.5 bg-teal-50 text-teal-700 rounded-md border border-teal-200">Interactive CDSS</span>
+                            </div>
+
+                            <!-- Chat Stream Container -->
+                            <div id="chatMessages" class="custom-scrollbar space-y-3 max-h-72 overflow-y-auto pr-2 mb-3.5 text-xs">
+                                <!-- Welcome message dynamically inserted -->
+                            </div>
+
+                            <!-- Quick Suggestion Chips -->
+                            <div id="quickPromptChips" class="flex flex-wrap gap-1.5 mb-3.5">
+                                <!-- Chips dynamically filled -->
+                            </div>
+
+                            <!-- Input Box Form -->
+                            <form id="chatForm" onsubmit="handleSendChat(event)" class="flex gap-2">
+                                <input type="text" id="chatInput" placeholder="Tanyakan seputar mandi, pantangan makan, bekas luka..." class="flex-1 text-xs p-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 focus:outline-none font-medium shadow-2xs">
+                                <button type="submit" id="chatSendBtn" class="px-5 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition shadow-sm cursor-pointer">
+                                    <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                                    <span>Tanya</span>
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Tombol Ekspor Laporan SOAP -->
+                        <div class="flex items-center justify-end gap-3 pt-2">
+                            <button onclick="window.print()" class="py-3 px-5 rounded-2xl border border-slate-300 bg-white hover:bg-slate-50 text-xs font-bold text-slate-800 flex items-center gap-2 transition shadow-sm cursor-pointer">
+                                <i data-lucide="printer" class="w-4 h-4 text-teal-700"></i>
+                                <span>Cetak Rekam Medis Klinis (Format SOAP)</span>
+                            </button>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- VIEW 2: PEMANTAU PROGRES TRAJEKTORI PENYEMBUHAN LUKA (TRACKER) -->
+        <!-- ========================================================================= -->
+        <div id="viewTracker" class="hidden">
+            <div class="text-center max-w-2xl mx-auto mb-8">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold mb-3 shadow-2xs">
+                    <i data-lucide="trending-down" class="w-3.5 h-3.5 text-teal-600"></i>
+                    Serial Wound Healing Trajectory Tracker
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                    Pemantau <span class="bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">Penyembuhan Luka Serial</span>
+                </h2>
+                <p class="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    Bandingkan foto luka hari awal (Baseline) dengan foto pemantauan hari ini untuk mengukur delta luas luka ($cm^2$), pergeseran granulasi vs nekrosis, dan deteksi dini infeksi.
+                </p>
+            </div>
+
+            <div class="glass-card rounded-3xl p-6 sm:p-8 shadow-card-glow max-w-4xl mx-auto mb-8 border border-slate-200/90">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- Foto 1: Hari Awal -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-2 flex items-center gap-1.5">
+                            <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-800 flex items-center justify-center text-[10px] font-bold">1</span>
+                            Foto Luka Hari Awal / Baseline (Foto 1):
+                        </label>
+                        <div id="dropDay1" onclick="document.getElementById('fileDay1').click()" class="border-2 border-dashed border-slate-300 hover:border-teal-500 rounded-2xl p-4 text-center cursor-pointer transition bg-slate-50/50 aspect-video flex flex-col items-center justify-center relative overflow-hidden group">
+                            <input type="file" id="fileDay1" accept="image/*" class="hidden">
+                            <img id="previewDay1" class="hidden absolute inset-0 w-full h-full object-cover" src="" alt="Day 1">
+                            <div id="promptDay1" class="text-center">
+                                <i data-lucide="image-plus" class="w-8 h-8 text-slate-400 group-hover:text-teal-600 mx-auto mb-1 transition"></i>
+                                <span class="text-xs font-bold text-slate-600 block">Pilih Foto Hari Awal</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Foto 2: Hari Ini -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-2 flex items-center gap-1.5">
+                            <span class="w-5 h-5 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px] font-bold">2</span>
+                            Foto Luka Hari Ini / Pemantauan (Foto 2):
+                        </label>
+                        <div id="dropDay2" onclick="document.getElementById('fileDay2').click()" class="border-2 border-dashed border-slate-300 hover:border-teal-500 rounded-2xl p-4 text-center cursor-pointer transition bg-slate-50/50 aspect-video flex flex-col items-center justify-center relative overflow-hidden group">
+                            <input type="file" id="fileDay2" accept="image/*" class="hidden">
+                            <img id="previewDay2" class="hidden absolute inset-0 w-full h-full object-cover" src="" alt="Day 2">
+                            <div id="promptDay2" class="text-center">
+                                <i data-lucide="image-plus" class="w-8 h-8 text-teal-600 mx-auto mb-1 transition"></i>
+                                <span class="text-xs font-bold text-slate-600 block">Pilih Foto Pemantauan</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="mt-8 flex justify-center">
+                    <button id="btnCompareProgress" onclick="evaluateWoundProgress()" class="py-3.5 px-8 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-xs font-bold rounded-2xl shadow-md shadow-teal-600/20 flex items-center gap-2 transition disabled:opacity-50 cursor-pointer">
+                        <i data-lucide="git-compare" class="w-4 h-4"></i>
+                        <span>Hitung Trajektori & Evaluasi Penyembuhan</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Hasil Pemantauan Progres -->
+            <div id="trackerResultCard" class="hidden max-w-4xl mx-auto space-y-6">
+                
+                <!-- Banner Status Pemulihan -->
+                <div id="trackerStatusBanner" class="p-6 rounded-3xl border flex items-start gap-4 shadow-sm bg-emerald-50 border-emerald-200">
+                    <div id="trackerStatusIcon" class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <i data-lucide="check-circle" class="w-6 h-6"></i>
+                    </div>
+                    <div class="flex-1">
+                        <span id="trackerStatusBadge" class="text-xs font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-emerald-600 text-white">
+                            MEMBAIK CEPAT
+                        </span>
+                        <h3 id="trackerStatusTitle" class="text-lg font-black text-slate-900 mt-2">Penyusutan Luas Luka</h3>
+                        <p id="trackerEvalText" class="text-xs text-slate-700 mt-1 leading-relaxed font-medium"></p>
+                    </div>
+                </div>
+
+                <!-- Perbandingan Metrik Serial -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="glass-card rounded-2xl p-5 text-center shadow-card-glow">
+                        <span class="text-xs text-slate-500 font-bold block mb-1">Luas Hari Awal</span>
+                        <b id="trackAreaDay1" class="text-2xl font-black text-slate-800">4.5 cm²</b>
+                    </div>
+                    <div class="glass-card rounded-2xl p-5 text-center shadow-card-glow">
+                        <span class="text-xs text-slate-500 font-bold block mb-1">Luas Hari Pemantauan</span>
+                        <b id="trackAreaDay2" class="text-2xl font-black text-teal-700">2.6 cm²</b>
+                    </div>
+                    <div class="glass-card rounded-2xl p-5 text-center shadow-card-glow">
+                        <span class="text-xs text-slate-500 font-bold block mb-1">Reduksi Luas Luka</span>
+                        <b id="trackReductionPct" class="text-2xl font-black text-emerald-600">-42.2%</b>
+                    </div>
+                </div>
+
+                <!-- Saran Penanganan Lanjutan Tracker -->
+                <div class="glass-card rounded-3xl p-6 shadow-card-glow border border-slate-200">
+                    <h4 class="text-xs font-black uppercase tracking-wider text-teal-700 mb-3">Rekomendasi Perawatan Lanjutan:</h4>
+                    <ul id="trackRecsList" class="space-y-2 text-xs text-slate-700"></ul>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Template Cetak Rekam Medis Klinis (SOAP) -->
+    <div id="printableClinicalReport" class="hidden p-8 max-w-3xl mx-auto bg-white text-slate-900 font-sans">
+        <div class="border-b-2 border-teal-600 pb-4 mb-6 flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-black text-slate-900">REKAM MEDIS TRIASE & KELAINAN KULIT / LUKA</h1>
+                <p class="text-xs text-slate-500">SmarTriage Clinical AI System • Format SOAP Standar</p>
+            </div>
+            <div class="text-right text-xs text-slate-500">
+                <p>Tanggal: <span id="printDate"></span></p>
+                <p>ID Sesi: #TR-CLINIC-2026</p>
+            </div>
+        </div>
+
+        <div class="space-y-4 text-xs leading-relaxed">
+            <!-- S (Subjective) -->
+            <div class="p-3 border rounded-xl bg-slate-50">
+                <b class="text-teal-800 uppercase tracking-wider block mb-1">[S] SUBJEKTIF (ANAMNESIS & KELUHAN):</b>
+                <p id="printSubjective">Keluhan pasien pada sistem integumen/kulit. Skala nyeri: <span id="printPain"></span>/10.</p>
+            </div>
+
+            <!-- O (Objective) -->
+            <div class="p-3 border rounded-xl bg-slate-50">
+                <b class="text-teal-800 uppercase tracking-wider block mb-1">[O] OBJEKTIF (ANALISIS CITRA & JARINGAN TIME):</b>
+                <div class="grid grid-cols-2 gap-4 mt-2">
+                    <div>
+                        <p>• Estimasi Luas: <b id="printArea"></b></p>
+                        <p>• Granulasi Sehat: <b id="printGran"></b></p>
+                        <p>• Slough/Eksudat: <b id="printSlough"></b></p>
+                        <p>• Nekrotik Kering: <b id="printNecro"></b></p>
+                    </div>
+                    <div>
+                        <p>• Kualitas Citra: <b id="printQuality">OPTIMAL</b></p>
+                        <p>• Skor Ketajaman: <b id="printBlur"></b></p>
+                        <p>• Skrining ABCDE: <b id="printABCDE">Normal</b></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- A (Assessment) -->
+            <div class="p-3 border rounded-xl bg-slate-50">
+                <b class="text-teal-800 uppercase tracking-wider block mb-1">[A] ASESMEN (DIAGNOSIS & LEVEL TRIASE):</b>
+                <p class="text-sm font-black text-slate-900" id="printCondition"></p>
+                <p class="font-bold text-rose-700" id="printTriageLevel"></p>
+                <p class="text-slate-600 mt-1" id="printTriageAction"></p>
+            </div>
+
+            <!-- P (Plan) -->
+            <div class="p-3 border rounded-xl bg-slate-50">
+                <b class="text-teal-800 uppercase tracking-wider block mb-1">[P] PLAN (TATALAKSANA P3K & RUJUKAN):</b>
+                <ul id="printFirstAid" class="list-disc pl-4 space-y-1 mt-1 text-slate-700"></ul>
+            </div>
+        </div>
+
+        <div class="border-t pt-4 mt-6 text-[11px] text-slate-500 flex justify-between">
+            <span>Diverifikasi oleh SmarTriage Decision Support Engine</span>
+            <span>Tanda Tangan Nakes / Observer: ___________________</span>
+        </div>
+    </div>
+
+    <!-- Footer Modern -->
+    <footer class="bg-white/80 backdrop-blur-md border-t border-slate-200/80 py-6 text-center text-xs text-slate-500 no-print mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+                <div class="w-5 h-5 rounded-lg bg-teal-600 text-white flex items-center justify-center text-[10px] font-bold">ST</div>
+                <span class="font-bold text-slate-700">SmarTriage Clinical AI System</span>
+                <span class="text-slate-300">|</span>
+                <span class="text-slate-400">Two-Stage Hierarchical Dermatology & Wound AI</span>
+            </div>
+            <p class="text-slate-400 text-[11px]">
+                Dirancang untuk triase klinis & penelitian informatika medis. Bimbingan dokter tetap standar tertinggi.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Logika Javascript Interaktif -->
+    <script>
+        lucide.createIcons();
+
+        let selectedFile = null;
+        let day1File = null;
+        let day2File = null;
+        let lastAnalysisResult = null;
+
+        // Mode Tampilan Utama
+        function switchMainView(view) {
+            const viewAnalyze = document.getElementById('viewAnalyze');
+            const viewTracker = document.getElementById('viewTracker');
+            const navAnalyze = document.getElementById('navBtnAnalyze');
+            const navTracker = document.getElementById('navBtnTracker');
+
+            if (view === 'analyze') {
+                viewAnalyze.classList.remove('hidden');
+                viewTracker.classList.add('hidden');
+                navAnalyze.className = 'main-nav-btn active px-3 py-1.5 rounded-lg border border-transparent transition flex items-center gap-1.5';
+                navTracker.className = 'main-nav-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 border border-transparent transition flex items-center gap-1.5';
+            } else {
+                viewAnalyze.classList.add('hidden');
+                viewTracker.classList.remove('hidden');
+                navTracker.className = 'main-nav-btn active px-3 py-1.5 rounded-lg border border-transparent transition flex items-center gap-1.5';
+                navAnalyze.className = 'main-nav-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 border border-transparent transition flex items-center gap-1.5';
+            }
+            lucide.createIcons();
+        }
+
+        // Domain Makro
+        let currentCategory = 'AUTO';
+        function setComplaintCategory(cat) {
+            currentCategory = cat;
+            const btnAuto = document.getElementById('btnCatAuto');
+            const btnWound = document.getElementById('btnCatWound');
+            const btnItch = document.getElementById('btnCatItch');
+            const btnNail = document.getElementById('btnCatNail');
+            const btnHair = document.getElementById('btnCatHair');
+
+            const activeClass = 'py-2 px-1 rounded-lg bg-white text-teal-700 shadow-xs font-bold transition';
+            const inactiveClass = 'py-2 px-1 rounded-lg text-slate-600 hover:text-slate-900 font-medium transition';
+
+            btnAuto.className = cat === 'AUTO' ? activeClass : inactiveClass;
+            btnWound.className = cat === 'LUKA' ? activeClass : inactiveClass;
+            btnItch.className = cat === 'GATAL' ? activeClass : inactiveClass;
+            btnNail.className = cat === 'KUKU' ? activeClass : inactiveClass;
+            btnHair.className = cat === 'RAMBUT' ? activeClass : inactiveClass;
+
+            if (cat === 'LUKA') {
+                switchSymptomTab('wound');
+            } else if (cat === 'KUKU') {
+                switchSymptomTab('nail');
+            } else if (cat === 'RAMBUT') {
+                switchSymptomTab('hair');
+            } else {
+                switchSymptomTab('skin');
+            }
+        }
+
+        // Peta Lokasi Anatomis Tubuh (Body Map)
+        let currentBodyLocation = 'AUTO';
+
+        function setBodyLocation(loc) {
+            currentBodyLocation = loc;
+            const locations = ['AUTO', 'KEPALA_WAJAH', 'DADA_PERUT', 'PUNGGUNG', 'SELA_JARI_TANGAN', 'LUTUT_SIKU_KAKI', 'KUKU_JARI', 'PINGGANG_DERMATOM'];
+            const locLabels = {
+                'AUTO': 'Otomatis (AI Scan)',
+                'KEPALA_WAJAH': 'Kepala & Wajah',
+                'DADA_PERUT': 'Dada & Perut',
+                'PUNGGUNG': 'Punggung',
+                'SELA_JARI_TANGAN': 'Sela Jari / Tangan',
+                'LUTUT_SIKU_KAKI': 'Lutut, Siku & Kaki',
+                'KUKU_JARI': 'Kuku Jari',
+                'PINGGANG_DERMATOM': 'Pinggang / Dermatom'
+            };
+
+            locations.forEach(l => {
+                const btn = document.getElementById(`bodyLoc_${l}`);
+                if (btn) {
+                    if (l === loc) {
+                        btn.className = 'py-2 px-1 rounded-xl bg-white border border-teal-500 text-teal-700 shadow-xs font-bold transition';
+                    } else {
+                        btn.className = 'py-2 px-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition';
+                    }
+                }
+            });
+
+            const labelElem = document.getElementById('currentBodyLocationLabel');
+            if (labelElem) {
+                labelElem.textContent = locLabels[loc] || loc;
+            }
+        }
+
+        function switchSymptomTab(tab) {
+            const tabWound = document.getElementById('tabSymWound');
+            const tabSkin = document.getElementById('tabSymSkin');
+            const tabNail = document.getElementById('tabSymNail');
+            const tabHair = document.getElementById('tabSymHair');
+
+            const groupWound = document.getElementById('symGroupWound');
+            const groupSkin = document.getElementById('symGroupSkin');
+            const groupNail = document.getElementById('symGroupNail');
+            const groupHair = document.getElementById('symGroupHair');
+
+            const activeTabClass = 'px-2 py-0.5 rounded bg-white text-teal-700 shadow-xs font-bold transition';
+            const inactiveTabClass = 'px-2 py-0.5 rounded text-slate-600 hover:text-slate-900 font-medium transition';
+
+            tabWound.className = tab === 'wound' ? activeTabClass : inactiveTabClass;
+            tabSkin.className = tab === 'skin' ? activeTabClass : inactiveTabClass;
+            tabNail.className = tab === 'nail' ? activeTabClass : inactiveTabClass;
+            tabHair.className = tab === 'hair' ? activeTabClass : inactiveTabClass;
+
+            groupWound.classList.toggle('hidden', tab !== 'wound');
+            groupSkin.classList.toggle('hidden', tab !== 'skin');
+            groupNail.classList.toggle('hidden', tab !== 'nail');
+            groupHair.classList.toggle('hidden', tab !== 'hair');
+        }
+
+        // Gemini API Key Management
+        const apiKeyModal = document.getElementById('apiKeyModal');
+        const geminiApiKeyInput = document.getElementById('geminiApiKeyInput');
+        const apiKeyBtnText = document.getElementById('apiKeyBtnText');
+        let savedApiKey = localStorage.getItem('smartriage_gemini_api_key') || '';
+        if (savedApiKey) {
+            geminiApiKeyInput.value = savedApiKey;
+            apiKeyBtnText.textContent = 'Gemini AI Aktif';
+            apiKeyBtnText.parentElement.className = 'flex items-center gap-1.5 text-xs font-bold px-3 py-2 bg-teal-50 text-teal-800 rounded-xl border border-teal-300 transition shadow-2xs';
+        }
+
+        function toggleApiKeyModal() {
+            apiKeyModal.classList.toggle('hidden');
+        }
+
+        function saveApiKey() {
+            const key = geminiApiKeyInput.value.trim();
+            if (key) {
+                localStorage.setItem('smartriage_gemini_api_key', key);
+                savedApiKey = key;
+                apiKeyBtnText.textContent = 'Gemini AI Aktif';
+                apiKeyBtnText.parentElement.className = 'flex items-center gap-1.5 text-xs font-bold px-3 py-2 bg-teal-50 text-teal-800 rounded-xl border border-teal-300 transition shadow-2xs';
+            }
+            toggleApiKeyModal();
+        }
+
+        function clearApiKey() {
+            localStorage.removeItem('smartriage_gemini_api_key');
+            geminiApiKeyInput.value = '';
+            savedApiKey = '';
+            apiKeyBtnText.textContent = 'Vision AI Lokal';
+            apiKeyBtnText.parentElement.className = 'flex items-center gap-1.5 text-xs font-bold px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-300 transition shadow-2xs';
+            toggleApiKeyModal();
+        }
+
+        // Pengaturan Input File Single
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadPrompt = document.getElementById('uploadPrompt');
+        const previewContainer = document.getElementById('previewContainer');
+        const imagePreview = document.getElementById('imagePreview');
+        const removeBtn = document.getElementById('removeBtn');
+        const painSlider = document.getElementById('painSlider');
+        const painLabel = document.getElementById('painLabel');
+
+        painSlider.addEventListener('input', (e) => {
+            const val = e.target.value;
+            let emoji = '😊';
+            let desc = 'Bebas Nyeri / Ringan';
+            if (val >= 4 && val <= 6) {
+                emoji = '😐';
+                desc = 'Nyeri Sedang';
+            } else if (val >= 7 && val <= 8) {
+                emoji = '😣';
+                desc = 'Nyeri Berat';
+            } else if (val >= 9) {
+                emoji = '🚨';
+                desc = 'Sangat Tak Tertahankan';
+            }
+            painLabel.textContent = `${val}/10 (${emoji} ${desc})`;
+        });
+
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                selectedFile = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    imagePreview.src = ev.target.result;
+                    uploadPrompt.classList.add('hidden');
+                    previewContainer.classList.remove('hidden');
+                };
+                reader.readAsDataURL(selectedFile);
+            }
+        });
+
+        removeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            selectedFile = null;
+            fileInput.value = '';
+            previewContainer.classList.add('hidden');
+            uploadPrompt.classList.remove('hidden');
+        });
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            document.getElementById('tab-p3k').classList.add('hidden');
+            document.getElementById('tab-obat').classList.add('hidden');
+            document.getElementById('tab-mitos').classList.add('hidden');
+            document.getElementById('tab-redflags').classList.add('hidden');
+
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+        }
+
+        // Tombol Analisis Triase Utama
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const emptyState = document.getElementById('emptyState');
+        const loadingState = document.getElementById('loadingState');
+        const resultCard = document.getElementById('resultCard');
+
+        analyzeBtn.addEventListener('click', async () => {
+            if (!selectedFile) {
+                alert('Silakan pilih foto keluhan kulit atau luka terlebih dahulu.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('complaint_category', currentCategory);
+            formData.append('body_location', currentBodyLocation);
+            formData.append('patient_group', document.getElementById('patientGroupSelect').value);
+
+            if (savedApiKey) {
+                formData.append('gemini_api_key', savedApiKey);
+            }
+
+            // Gejala Ragam Luka Fisik
+            formData.append('symptom_puncture_nail', document.getElementById('symPuncture').checked);
+            formData.append('symptom_animal_bite', document.getElementById('symAnimalBite').checked);
+            formData.append('symptom_burn_blister', document.getElementById('symBurnBlister').checked);
+            formData.append('symptom_burn_charred', document.getElementById('symBurnCharred').checked);
+            formData.append('symptom_bruise_blunt', document.getElementById('symBruiseBlunt').checked);
+            formData.append('symptom_bedsores', document.getElementById('symBedsores').checked);
+            formData.append('symptom_clean_cut', document.getElementById('symCleanCut').checked);
+
+            // Gejala Gatal & Ruam Kulit
+            formData.append('symptom_itch', document.getElementById('symItch').checked);
+            formData.append('symptom_wheal_bumps', document.getElementById('symBumps').checked);
+            formData.append('symptom_night_itch', document.getElementById('symNight').checked);
+            formData.append('symptom_ring_circle', document.getElementById('symRing').checked);
+            formData.append('symptom_dry_scaly', document.getElementById('symDry').checked);
+            formData.append('symptom_vesicles_blister', document.getElementById('symBlister').checked);
+
+            // Gejala Kuku
+            formData.append('symptom_nail_ingrown', document.getElementById('symNailIngrown').checked);
+            formData.append('symptom_nail_fungus', document.getElementById('symNailFungus').checked);
+            formData.append('symptom_nail_trauma', document.getElementById('symNailTrauma').checked);
+
+            // Gejala Rambut & Kulit Kepala
+            formData.append('symptom_scalp_dandruff', document.getElementById('symScalpDandruff').checked);
+            formData.append('symptom_hair_loss_patch', document.getElementById('symHairLossPatch').checked);
+            formData.append('symptom_head_lice', document.getElementById('symHeadLice').checked);
+
+            // Tanda Bahaya & Nyeri
+            formData.append('pain_level', painSlider.value);
+            formData.append('has_tetanus_risk', document.getElementById('riskTetanus').checked);
+            formData.append('is_bleeding_uncontrolled', document.getElementById('riskBleeding').checked);
+            formData.append('is_deep_cut', document.getElementById('riskDeep').checked);
+            formData.append('is_face_or_joint', document.getElementById('riskFace').checked);
+            formData.append('has_fever', document.getElementById('riskFever').checked);
+
+            emptyState.classList.add('hidden');
+            resultCard.classList.add('hidden');
+            loadingState.classList.remove('hidden');
+
+            try {
+                const response = await fetch('/api/v1/triage/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Gagal menganalisis citra');
+                }
+
+                const data = await response.json();
+                renderResult(data);
+            } catch (err) {
+                alert('Terjadi kesalahan: ' + err.message);
+                emptyState.classList.remove('hidden');
+            } finally {
+                loadingState.classList.add('hidden');
+            }
+        });
+
+        function renderResult(data) {
+            lastAnalysisResult = data;
+            resultCard.classList.remove('hidden');
+
+            // Quality Gatekeeper Warning
+            const qBanner = document.getElementById('qualityBanner');
+            if (data.quality_info && !data.quality_info.is_valid) {
+                qBanner.classList.remove('hidden');
+                document.getElementById('qualityTitle').textContent = `Peringatan Kualitas (${data.quality_info.quality_status}):`;
+                document.getElementById('qualityDesc').textContent = data.quality_info.warning_message || 'Foto kurang optimal untuk analisis.';
+                qBanner.className = 'p-4 rounded-2xl border flex items-start gap-3.5 text-xs bg-rose-50 border-rose-200 text-rose-900 shadow-2xs';
+            } else if (data.quality_info && data.quality_info.is_blurry) {
+                qBanner.classList.remove('hidden');
+                document.getElementById('qualityTitle').textContent = 'Peringatan Ketajaman (Foto Agak Buram):';
+                document.getElementById('qualityDesc').textContent = data.quality_info.warning_message;
+                qBanner.className = 'p-4 rounded-2xl border flex items-start gap-3.5 text-xs bg-amber-50 border-amber-200 text-amber-900 shadow-2xs';
+            } else {
+                qBanner.classList.add('hidden');
+            }
+
+            // Foto & Heatmap
+            document.getElementById('resOriginalImg').src = imagePreview.src;
+            document.getElementById('resHeatmapImg').src = data.heatmap_base64 || data.heatmap_url;
+
+            // Banner Triase
+            const banner = document.getElementById('triageBanner');
+            const badge = document.getElementById('triageBadge');
+            const iconWrapper = document.getElementById('triageIconWrapper');
+
+            document.getElementById('triageTitle').textContent = `${data.common_name} (${data.medical_name})`;
+            document.getElementById('triageAction').textContent = data.triage_action;
+            document.getElementById('confidenceBadge').textContent = `Keyakinan: ${data.confidence_percentage}`;
+            badge.textContent = `LEVEL TRIASE: ${data.triage_level}`;
+
+            if (data.triage_level === 'MERAH') {
+                banner.className = 'p-6 rounded-3xl border bg-gradient-to-br from-rose-50 via-rose-50/80 to-red-100/40 border-rose-300 text-rose-950 shadow-triage-red flex flex-col sm:flex-row items-start sm:items-center gap-4.5';
+                badge.className = 'px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-rose-600 text-white shadow-2xs';
+                iconWrapper.className = 'w-14 h-14 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 shadow-sm';
+            } else if (data.triage_level === 'KUNING') {
+                banner.className = 'p-6 rounded-3xl border bg-gradient-to-br from-amber-50 via-amber-50/80 to-amber-100/40 border-amber-300 text-amber-950 shadow-triage-amber flex flex-col sm:flex-row items-start sm:items-center gap-4.5';
+                badge.className = 'px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-amber-500 text-white shadow-2xs';
+                iconWrapper.className = 'w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 shadow-sm';
+            } else {
+                banner.className = 'p-6 rounded-3xl border bg-gradient-to-br from-emerald-50 via-emerald-50/80 to-teal-100/40 border-emerald-300 text-emerald-950 shadow-triage-green flex flex-col sm:flex-row items-start sm:items-center gap-4.5';
+                badge.className = 'px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-emerald-600 text-white shadow-2xs';
+                iconWrapper.className = 'w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 shadow-sm';
+            }
+
+            // Alasan Triase List
+            const reasonsList = document.getElementById('triageReasonsList');
+            reasonsList.innerHTML = (data.triage_reasons || []).map(r => `<li class="flex items-start gap-1.5"><span class="text-teal-700 font-bold">•</span><span>${r}</span></li>`).join('');
+
+            // Emergency Facility Locator
+            const emergencyBanner = document.getElementById('emergencyLocatorBanner');
+            if (emergencyBanner) {
+                if (data.triage_level === 'MERAH') {
+                    emergencyBanner.classList.remove('hidden');
+                } else {
+                    emergencyBanner.classList.add('hidden');
+                }
+            }
+
+            // Top-3 Differential Diagnosis (DDx)
+            const diffList = document.getElementById('differentialList');
+            if (diffList && data.top3_differential && data.top3_differential.length > 0) {
+                diffList.innerHTML = data.top3_differential.map((item, idx) => {
+                    const isTop1 = idx === 0;
+                    const barColor = isTop1 ? 'bg-gradient-to-r from-teal-500 to-emerald-500' : (idx === 1 ? 'bg-gradient-to-r from-sky-400 to-blue-500' : 'bg-slate-400');
+                    const borderStyle = isTop1 ? 'border-teal-300 bg-teal-50/50 shadow-2xs' : 'border-slate-100 bg-slate-50/60';
+                    return `
+                        <div class="p-3 rounded-xl border ${borderStyle} transition hover:border-teal-300">
+                            <div class="flex items-center justify-between text-xs mb-1.5">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-4 h-4 rounded-full ${isTop1 ? 'bg-teal-600 text-white' : 'bg-slate-200 text-slate-700'} flex items-center justify-center text-[10px] font-black">${idx + 1}</span>
+                                    <span class="font-bold text-slate-800">${item.common_name}</span>
+                                    <span class="text-slate-500 italic text-[11px]">(${item.medical_name})</span>
+                                </div>
+                                <span class="font-black ${isTop1 ? 'text-teal-700' : 'text-slate-600'}">${item.percentage}</span>
+                            </div>
+                            <div class="w-full bg-slate-200/80 h-2 rounded-full overflow-hidden mb-1.5">
+                                <div class="${barColor} h-full transition-all duration-500 rounded-full" style="width: ${Math.max(5, item.probability * 100)}%"></div>
+                            </div>
+                            <p class="text-[11px] text-slate-600 leading-relaxed font-medium">${item.clinical_rationale}</p>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Peringatan Keselamatan Obat & Demografis
+            const safetyCard = document.getElementById('safetyWarningsCard');
+            const safetyList = document.getElementById('safetyWarningsList');
+            if (safetyCard && safetyList) {
+                if (data.safety_warnings && data.safety_warnings.length > 0) {
+                    safetyCard.classList.remove('hidden');
+                    safetyList.innerHTML = data.safety_warnings.map(w => {
+                        const isHigh = w.severity === 'BAHAYA_TINGGI';
+                        const isMedium = w.severity === 'PERINGATAN_SEDANG';
+                        const cardBg = isHigh ? 'bg-rose-50/90 border-rose-200 text-rose-950' : (isMedium ? 'bg-amber-50/90 border-amber-200 text-amber-950' : 'bg-blue-50/90 border-blue-200 text-blue-950');
+                        const badgeBg = isHigh ? 'bg-rose-600 text-white' : (isMedium ? 'bg-amber-500 text-white' : 'bg-blue-500 text-white');
+                        return `
+                            <div class="p-3 rounded-xl border ${cardBg} shadow-2xs">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-bold flex items-center gap-1.5">
+                                        <span>${w.title}</span>
+                                    </span>
+                                    <span class="text-[10px] font-black px-2 py-0.5 rounded ${badgeBg}">${w.category}</span>
+                                </div>
+                                <p class="text-[11px] opacity-90 leading-relaxed font-medium">${w.warning_message}</p>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    safetyCard.classList.add('hidden');
+                }
+            }
+
+            // TIME Framework
+            const t = data.tissue_analysis;
+            document.getElementById('severityBadge').textContent = `Estimasi: ${t.estimated_area_cm2} cm² (${t.severity_classification})`;
+            document.getElementById('barGranulation').style.width = `${t.granulation_percentage}%`;
+            document.getElementById('barSlough').style.width = `${t.slough_percentage}%`;
+            document.getElementById('barNecrotic').style.width = `${t.necrotic_percentage}%`;
+
+            document.getElementById('valGranulation').textContent = `${t.granulation_percentage}%`;
+            document.getElementById('valSlough').textContent = `${t.slough_percentage}%`;
+            document.getElementById('valNecrotic').textContent = `${t.necrotic_percentage}%`;
+
+            // Dynamic Adaptive Anamnesis (CDSS)
+            const cdssCard = document.getElementById('adaptiveQuestionsCard');
+            const cdssList = document.getElementById('adaptiveQuestionsList');
+            if (data.adaptive_questions && data.adaptive_questions.length > 0) {
+                cdssCard.classList.remove('hidden');
+                cdssList.innerHTML = data.adaptive_questions.map((q, qIdx) => `
+                    <div class="p-3.5 bg-white rounded-xl border border-teal-100 shadow-2xs">
+                        <p class="font-bold text-slate-800 mb-2.5">${qIdx + 1}. ${q.question}</p>
+                        <div class="flex flex-wrap gap-2">
+                            ${q.options.map(opt => `
+                                <button type="button" onclick="this.classList.toggle('bg-teal-600'); this.classList.toggle('text-white'); this.classList.toggle('border-teal-600')" class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 hover:border-teal-400 text-xs font-semibold transition cursor-pointer">
+                                    ${opt}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                cdssCard.classList.add('hidden');
+            }
+
+            // Skrining ABCDE Melanoma
+            const abcdeCard = document.getElementById('abcdeCard');
+            if (data.abcde_analysis && data.abcde_analysis.has_pigmented_lesion) {
+                abcdeCard.classList.remove('hidden');
+                const a = data.abcde_analysis;
+                document.getElementById('abcdeRiskBadge').textContent = a.risk_level;
+                document.getElementById('valAsymmetry').textContent = a.asymmetry_score;
+                document.getElementById('valBorder').textContent = a.border_score;
+                document.getElementById('valColorVar').textContent = a.color_variation_score;
+                document.getElementById('valDiameter').textContent = `${a.diameter_mm} mm`;
+                document.getElementById('abcdeRecText').textContent = a.recommendation;
+            } else {
+                abcdeCard.classList.add('hidden');
+            }
+
+            // Tab Details
+            document.getElementById('conditionDesc').textContent = data.description;
+            document.getElementById('healingTime').textContent = data.estimated_healing_time;
+
+            // List P3K
+            const p3kList = document.getElementById('p3kList');
+            p3kList.innerHTML = data.first_aid_steps.map((step, idx) => `
+                <li class="flex items-start gap-3 text-xs text-slate-700 p-2 rounded-xl hover:bg-slate-50 transition">
+                    <span class="w-5 h-5 rounded-lg bg-teal-100 text-teal-800 font-black flex items-center justify-center shrink-0 text-[11px] shadow-2xs">${idx + 1}</span>
+                    <span class="leading-relaxed font-medium">${step}</span>
+                </li>
+            `).join('');
+
+            // List Obat
+            const obatList = document.getElementById('obatList');
+            obatList.innerHTML = data.recommended_otc_meds.map(med => `
+                <li class="p-3 bg-slate-50/80 border border-slate-200 rounded-xl text-xs text-slate-800 font-semibold flex items-center gap-2.5 shadow-2xs">
+                    <span class="w-2 h-2 rounded-full bg-teal-500 shrink-0"></span>
+                    <span>${med}</span>
+                </li>
+            `).join('');
+
+            // List Mitos
+            const mitosList = document.getElementById('mitosList');
+            mitosList.innerHTML = data.myths_and_warnings.map(myth => `
+                <li class="p-3 bg-rose-50/50 border border-rose-100 rounded-xl text-xs text-rose-900 font-semibold flex items-start gap-2.5 shadow-2xs">
+                    <span class="text-rose-600 font-black shrink-0">✕</span>
+                    <span class="leading-relaxed font-medium">${myth}</span>
+                </li>
+            `).join('');
+
+            // List Red Flags
+            const redflagsList = document.getElementById('redflagsList');
+            redflagsList.innerHTML = data.red_flags.map(rf => `
+                <li class="p-3 bg-amber-50/50 border border-amber-100 rounded-xl text-xs text-amber-950 font-semibold flex items-start gap-2.5 shadow-2xs">
+                    <span class="text-amber-600 font-black shrink-0">⚠</span>
+                    <span class="leading-relaxed font-medium">${rf}</span>
+                </li>
+            `).join('');
+
+            // Update print sheet (SOAP)
+            document.getElementById('printDate').textContent = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            document.getElementById('printPain').textContent = painSlider.value;
+            document.getElementById('printCondition').textContent = `${data.common_name} (${data.medical_name})`;
+            document.getElementById('printTriageLevel').textContent = `LEVEL TRIASE: ${data.triage_level}`;
+            document.getElementById('printTriageAction').textContent = data.triage_action;
+            document.getElementById('printArea').textContent = `${t.estimated_area_cm2} cm² (${t.severity_classification})`;
+            document.getElementById('printGran').textContent = `${t.granulation_percentage}%`;
+            document.getElementById('printSlough').textContent = `${t.slough_percentage}%`;
+            document.getElementById('printNecro').textContent = `${t.necrotic_percentage}%`;
+            
+            if (data.quality_info) {
+                document.getElementById('printQuality').textContent = data.quality_info.quality_status;
+                document.getElementById('printBlur').textContent = `${data.quality_info.blur_score} (Laplacian)`;
+            }
+
+            const printFirstAid = document.getElementById('printFirstAid');
+            printFirstAid.innerHTML = data.first_aid_steps.map(s => `<li>${s}</li>`).join('');
+
+            // Inisialisasi Telehealth Virtual Chatbot
+            initConsultChat(data);
+
+            lucide.createIcons();
+        }
+
+        // =========================================================================
+        // TELEHEALTH AI CONSULTATION CHATBOT LOGIC
+        // =========================================================================
+        function initConsultChat(data) {
+            const chatMessages = document.getElementById('chatMessages');
+            if (!chatMessages) return;
+
+            chatMessages.innerHTML = `
+                <div class="flex items-start gap-3 bg-teal-50/90 border border-teal-200 p-4 rounded-2xl text-slate-800 shadow-2xs">
+                    <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-teal-600 to-emerald-500 text-white flex items-center justify-center text-[10px] shrink-0 mt-0.5 font-black shadow-xs">AI</div>
+                    <div class="flex-1 space-y-1.5 leading-relaxed">
+                        <p class="font-extrabold text-teal-950">Halo! Saya Asisten Dokter Virtual SmartTriage AI.</p>
+                        <p class="text-slate-600 font-medium">Saya siap menjawab pertanyaan Anda seputar perawatan <b>${data.common_name} (${data.medical_name})</b>, panduan cara mandi yang aman, pencegahan bopeng/bekas luka, pantangan makanan, atau aturan minum obat.</p>
+                    </div>
+                </div>
+            `;
+
+            renderQuickChips([
+                "Apakah boleh mandi saat kondisi seperti ini?",
+                "Bagaimana cara mencegah bekas luka atau bopeng?",
+                "Apakah ada pantangan makanan tertentu?",
+                "Kapan saya harus segera memeriksakan diri ke dokter?"
+            ]);
+        }
+
+        function renderQuickChips(chips) {
+            const container = document.getElementById('quickPromptChips');
+            if (!container) return;
+            container.innerHTML = chips.map(q => `
+                <button type="button" onclick="sendQuickPrompt('${q.replace(/'/g, "\\'")}')" class="px-3 py-1.5 bg-slate-100/80 hover:bg-teal-50 hover:text-teal-800 hover:border-teal-300 border border-slate-200 rounded-full text-[11px] text-slate-700 transition flex items-center gap-1.5 font-semibold cursor-pointer shadow-2xs">
+                    <span>💬</span>
+                    <span>${q}</span>
+                </button>
+            `).join('');
+        }
+
+        function sendQuickPrompt(promptText) {
+            const input = document.getElementById('chatInput');
+            if (input) {
+                input.value = promptText;
+                handleSendChat(new Event('submit'));
+            }
+        }
+
+        async function handleSendChat(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if (!msg || !lastAnalysisResult) return;
+
+            const chatMessages = document.getElementById('chatMessages');
+            
+            // Bubble Pesan Pasien
+            chatMessages.innerHTML += `
+                <div class="flex items-start justify-end gap-2 text-right">
+                    <div class="bg-gradient-to-r from-teal-600 to-teal-700 text-white px-4 py-3 rounded-2xl rounded-tr-xs max-w-[85%] text-left shadow-xs">
+                        <p class="leading-relaxed font-medium">${msg}</p>
+                    </div>
+                </div>
+            `;
+            input.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Loading Bubble AI
+            const loadingId = 'loading-' + Date.now();
+            chatMessages.innerHTML += `
+                <div id="${loadingId}" class="flex items-start gap-2.5 bg-slate-50 border border-slate-200 p-3.5 rounded-2xl text-slate-600 shadow-2xs">
+                    <div class="w-7 h-7 rounded-xl bg-slate-300 text-white flex items-center justify-center text-[10px] shrink-0 font-black animate-pulse">AI</div>
+                    <div class="flex items-center gap-2 text-xs">
+                        <div class="w-2 h-2 rounded-full bg-teal-500 animate-bounce"></div>
+                        <div class="w-2 h-2 rounded-full bg-teal-500 animate-bounce" style="animation-delay: 0.15s"></div>
+                        <div class="w-2 h-2 rounded-full bg-teal-500 animate-bounce" style="animation-delay: 0.3s"></div>
+                        <span class="text-[11px] text-slate-500 ml-1 font-medium">Dokter AI sedang menyusun penjelasan klinis...</span>
+                    </div>
+                </div>
+            `;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            try {
+                const patientGroup = document.getElementById('patientGroupSelect') ? document.getElementById('patientGroupSelect').value : 'DEWASA';
+                const res = await fetch('/api/v1/triage/consult-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        condition_key: lastAnalysisResult.condition_key,
+                        message: msg,
+                        patient_group: patientGroup,
+                        gemini_api_key: savedApiKey || null
+                    })
+                });
+
+                const data = await res.json();
+                const loadElem = document.getElementById(loadingId);
+                if (loadElem) loadElem.remove();
+
+                if (data.reply) {
+                    let formatted = data.reply
+                        .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+                        .replace(/\n\n/g, '<br><br>')
+                        .replace(/\n/g, '<br>');
+
+                    chatMessages.innerHTML += `
+                        <div class="flex items-start gap-3 bg-teal-50/70 border border-teal-200 p-4 rounded-2xl rounded-tl-xs text-slate-800 shadow-2xs">
+                            <div class="w-7 h-7 rounded-xl bg-teal-600 text-white flex items-center justify-center text-[10px] shrink-0 mt-0.5 font-black shadow-xs">AI</div>
+                            <div class="flex-1 space-y-1.5 leading-relaxed text-xs font-medium">
+                                ${formatted}
+                            </div>
+                        </div>
+                    `;
+
+                    if (data.suggested_questions && data.suggested_questions.length > 0) {
+                        renderQuickChips(data.suggested_questions);
+                    }
+                }
+            } catch (err) {
+                const loadElem = document.getElementById(loadingId);
+                if (loadElem) loadElem.remove();
+                chatMessages.innerHTML += `
+                    <div class="p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs">
+                        Maaf, terjadi kendala saat menghubungkan ke sistem konsultasi. Silakan coba lagi.
+                    </div>
+                `;
+            }
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // =========================================================================
+        // WOUND HEALING TRACKER LOGIC
+        // =========================================================================
+        const fileDay1 = document.getElementById('fileDay1');
+        const fileDay2 = document.getElementById('fileDay2');
+        const previewDay1 = document.getElementById('previewDay1');
+        const previewDay2 = document.getElementById('previewDay2');
+        const promptDay1 = document.getElementById('promptDay1');
+        const promptDay2 = document.getElementById('promptDay2');
+
+        fileDay1.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                day1File = e.target.files[0];
+                const r = new FileReader();
+                r.onload = (ev) => {
+                    previewDay1.src = ev.target.result;
+                    previewDay1.classList.remove('hidden');
+                    promptDay1.classList.add('hidden');
+                };
+                r.readAsDataURL(day1File);
+            }
+        });
+
+        fileDay2.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                day2File = e.target.files[0];
+                const r = new FileReader();
+                r.onload = (ev) => {
+                    previewDay2.src = ev.target.result;
+                    previewDay2.classList.remove('hidden');
+                    promptDay2.classList.add('hidden');
+                };
+                r.readAsDataURL(day2File);
+            }
+        });
+
+        async function evaluateWoundProgress() {
+            if (!day1File || !day2File) {
+                alert('Silakan pilih kedua foto luka (Hari Awal dan Hari Pemantauan) terlebih dahulu.');
+                return;
+            }
+
+            const fd = new FormData();
+            fd.append('file_day1', day1File);
+            fd.append('file_day2', day2File);
+
+            const btn = document.getElementById('btnCompareProgress');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Menganalisis Trajektori...';
+
+            try {
+                const res = await fetch('/api/v1/triage/track-progress', {
+                    method: 'POST',
+                    body: fd
+                });
+
+                if (!res.ok) {
+                    throw new Error('Gagal mengevaluasi progres luka');
+                }
+
+                const data = await res.json();
+                renderTrackerResult(data);
+            } catch (err) {
+                alert('Terjadi kesalahan: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="git-compare" class="w-4 h-4"></i> <span>Hitung Trajektori & Evaluasi Penyembuhan</span>';
+                lucide.createIcons();
+            }
+        }
+
+        function renderTrackerResult(data) {
+            const card = document.getElementById('trackerResultCard');
+            card.classList.remove('hidden');
+
+            const badge = document.getElementById('trackerStatusBadge');
+            const title = document.getElementById('trackerStatusTitle');
+            const banner = document.getElementById('trackerStatusBanner');
+
+            badge.textContent = data.healing_status;
+            badge.style.backgroundColor = data.healing_badge_color;
+            title.textContent = `Perubahan Luas: ${data.area_reduction_percentage >= 0 ? 'Penyusutan' : 'Pertambahan'} ${Math.abs(data.area_reduction_percentage)}%`;
+            document.getElementById('trackerEvalText').textContent = data.clinical_evaluation;
+
+            document.getElementById('trackAreaDay1').textContent = `${data.day1_area_cm2} cm²`;
+            document.getElementById('trackAreaDay2').textContent = `${data.day2_area_cm2} cm²`;
+            
+            const redPctEl = document.getElementById('trackReductionPct');
+            redPctEl.textContent = `${data.area_reduction_percentage >= 0 ? '-' : '+'}${Math.abs(data.area_reduction_percentage)}%`;
+            redPctEl.className = data.area_reduction_percentage >= 0 ? 'text-2xl font-black text-emerald-600' : 'text-2xl font-black text-rose-600';
+
+            const recsList = document.getElementById('trackRecsList');
+            recsList.innerHTML = data.recommendations.map(r => `
+                <li class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-start gap-2.5 font-medium shadow-2xs">
+                    <span class="text-teal-600 font-bold shrink-0">•</span>
+                    <span>${r}</span>
+                </li>
+            `).join('');
+
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>
