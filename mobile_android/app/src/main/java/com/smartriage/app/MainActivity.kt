@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import com.smartriage.app.ui.TriageViewModel
-import com.smartriage.app.ui.screens.TriageScreen
+import com.smartriage.app.ui.screens.MainScreen
 import com.smartriage.app.ui.theme.SmarTriageTheme
 
 class MainActivity : ComponentActivity() {
@@ -15,7 +15,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SmarTriageTheme {
-                TriageScreen(viewModel = viewModel)
+                MainScreen(viewModel = viewModel)
             }
         }
     }
